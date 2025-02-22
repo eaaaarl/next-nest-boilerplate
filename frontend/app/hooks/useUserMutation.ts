@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { userValues } from '../schema/user.schema';
 import api from '@/lib/axios';
+import { toast } from 'sonner';
 
 export const useUserMutation = () => {
   const queryClient = useQueryClient();
@@ -16,8 +17,15 @@ export const useUserMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
-    onError: (e) => {
+    onError: (e: any) => {
       console.error(e);
+
+      if (e?.response?.status === 409) {
+        toast.error(e?.response?.data?.message);
+        return;
+      }
+
+      toast.error('Failed to create user. Please try again.');
     },
   });
 
@@ -52,8 +60,15 @@ export const useUserMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
-    onError: (e) => {
+    onError: (e: any) => {
       console.error(e);
+
+      if (e?.response?.status === 409) {
+        toast.error(e?.response?.data?.message);
+        return;
+      }
+
+      toast.error('Failed to update user. Please try again.');
     },
   });
 
