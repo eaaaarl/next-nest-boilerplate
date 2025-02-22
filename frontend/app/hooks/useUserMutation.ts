@@ -34,10 +34,37 @@ export const useUserMutation = () => {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: userValues;
+    }) => {
+      const response = await api.put(`/user/${id}/edit`, {
+        studentID: payload.studentID,
+        name: payload.name,
+        course: payload.course,
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: (e) => {
+      console.error(e);
+    },
+  });
+
   return {
     createUser: createMutation.mutate,
     isCreating: createMutation.isPending,
+
     deleteUser: deleteMutation.mutate,
     isDeleting: deleteMutation.isPending,
+
+    updateUser: updateMutation.mutate,
+    isUpdating: updateMutation.isPending,
   };
 };

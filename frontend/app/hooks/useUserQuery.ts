@@ -28,3 +28,18 @@ export const useUserListQuery = () => {
     isLoading: isPending,
   };
 };
+
+export const useUserFindByIdQuery = (id: string) => {
+  const { data, isPending } = useQuery({
+    queryKey: ['users', id],
+    queryFn: async () => {
+      const response = await api.get(`/user/${id}`);
+      return response.data;
+    },
+  });
+
+  return {
+    user: data?.data,
+    isLoading: isPending,
+  };
+};

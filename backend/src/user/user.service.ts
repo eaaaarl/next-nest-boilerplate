@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserDTO } from './dto/user.dto';
 
@@ -30,5 +35,48 @@ export class UserService {
 
   async deleteUser(id: string) {
     return await this.prisma.student.delete({ where: { id } });
+  }
+
+  async findByIdUser(id: string) {
+    return await this.prisma.student.findUnique({ where: { id } });
+  }
+
+  async updateUser(id: string, dto: UserDTO) {
+    try {
+      if (!id) {
+        throw new BadRequestException('User Id is missing');
+      }
+
+      const existingUser = this.prisma.student.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      if (!existingUser) {
+        throw new NotFoundException('User not found');
+      }
+
+      const updateUser = await this.prisma.student.update({
+        where: {
+          id,
+        },
+        data: {
+          course: dto.course,
+          studentId: dto.studentID,
+          name: dto.name,
+        },
+      });
+
+      return updateUser;
+    } catch (e) {
+      console.error('[USER_EDIT_SERVICE_ERROR]', e);
+      if (e instanceof NotFoundException || e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException(
+        'Something went wrong while updating the user',
+      );
+    }
   }
 }

@@ -119,10 +119,13 @@ function UserTable({ users, isLoading, onDelete }: usersProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuItem>
-                      <Eye className="text-blue-700" />
-                      Edit
-                    </DropdownMenuItem>
+                    <Link href={`/users/${user?.id}/edit`}>
+                      <DropdownMenuItem>
+                        <Eye className="text-blue-700" />
+                        Edit
+                      </DropdownMenuItem>
+                    </Link>
+
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => onDelete(user?.id)}>
                       <Trash2 className="text-red-700" />
