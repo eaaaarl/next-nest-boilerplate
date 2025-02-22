@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -20,17 +21,28 @@ export class UserService {
   }
 
   async createUser(dto: UserDTO) {
-    const { course, name, studentID } = dto;
+    try {
+      const { course, name, studentID } = dto;
 
-    const newUser = await this.prisma.student.create({
-      data: {
-        course,
-        name,
-        studentId: studentID,
-      },
-    });
+      const newUser = await this.prisma.student.create({
+        data: {
+          course,
+          name,
+          studentId: studentID,
+        },
+      });
 
-    return newUser;
+      return newUser;
+    } catch (e) {
+      console.error('[USER_CREATE_SERVICE_ERROR]', e);
+      if (e instanceof NotFoundException || e instanceof BadRequestException) {
+        throw e;
+      }
+      if (e.code === 'P2002') {
+        throw new ConflictException('Student ID already exists');
+      }
+      throw new InternalServerErrorException();
+    }
   }
 
   async deleteUser(id: string) {
@@ -47,7 +59,7 @@ export class UserService {
         throw new BadRequestException('User Id is missing');
       }
 
-      const existingUser = this.prisma.student.findUnique({
+      const existingUser = await this.prisma.student.findUnique({
         where: {
           id,
         },
@@ -71,12 +83,15 @@ export class UserService {
       return updateUser;
     } catch (e) {
       console.error('[USER_EDIT_SERVICE_ERROR]', e);
+
       if (e instanceof NotFoundException || e instanceof BadRequestException) {
         throw e;
       }
-      throw new InternalServerErrorException(
-        'Something went wrong while updating the user',
-      );
+      if (e.code === 'P2002') {
+        throw new ConflictException('Student ID already exists');
+      }
+
+      throw new InternalServerErrorException();
     }
   }
 }
