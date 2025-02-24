@@ -6,10 +6,11 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/at.strategy';
 import { RtStrategy } from './strategies/rt.strategy';
+import { GitHubService } from './github.service';
 
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forRoot(),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -20,7 +21,8 @@ import { RtStrategy } from './strategies/rt.strategy';
       }),
     }),
   ],
-  providers: [AuthService, JwtStrategy, RtStrategy],
+  providers: [AuthService, JwtStrategy, RtStrategy, GitHubService],
   controllers: [AuthController],
+  exports: [AuthService],
 })
 export class AuthModule {}

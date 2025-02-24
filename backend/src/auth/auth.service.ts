@@ -47,13 +47,7 @@ export class AuthService {
       },
     });
 
-    if (!user) {
-      throw new ForbiddenException({
-        status: 401,
-        message: 'Invalid username or password',
-        error: 'Unauthorized',
-      });
-    }
+    if (!user || !user.password) return null;
 
     const passwordMatches = await argon.verify(user.password, dto.password);
     if (!passwordMatches) {
@@ -82,6 +76,22 @@ export class AuthService {
       },
     });
     return true;
+  }
+
+  async getCurrentUser(userId: string) {
+    return await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        avatar: true,
+        createdAt: true,
+        email: true,
+        name: true,
+        username: true,
+      },
+    });
   }
 
   async refreshTokens(userId: string, rt: string): Promise<Token> {

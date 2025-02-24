@@ -14,10 +14,15 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  password  String
-  rtToken   String?
+  id         String  @id @default(uuid())
+  email      String? @unique
+  username   String  @unique
+  password   String?
+  name       String?
+  avatar     String?
+  providerId String?
+  rtToken    String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

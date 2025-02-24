@@ -1,19 +1,66 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/AuthDto.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GetCurrentUserId } from './common/decorators/get-current-user-id.decorator';
 import { GetCurrentUser } from './common/decorators/get-current-user.decorator';
 import { Public } from './common/decorators/public.decorator';
+import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
+import { GitHubService } from './github.service';
 
 @Controller('api/auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private configService: ConfigService,
+    private githubService: GitHubService,
+  ) {}
 
   @Public()
   @Post('signup')
   async signupLocal(@Body() payload: AuthDto) {
     return this.authService.signupLocal(payload);
+  }
+
+  @Get('github/login')
+  githubLogin(@Res() res: Response) {
+    const clientId = this.configService.get('GITHUB_CLIENT_ID');
+    const redirectUri = 'http://localhost:8080/api/auth/github/callback';
+
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      scope: 'user:email',
+    });
+
+    const githubAuthUrl = `https://github.com/login/oauth/authorize?${params}`;
+
+    res.redirect(githubAuthUrl);
+  }
+
+  @Public()
+  @Get('github/callback')
+  async githubCallback(@Query('code') code: string, @Res() res: Response) {
+    try {
+      const { tokens, user } =
+        await this.githubService.handleGithubCallback(code);
+
+      res.redirect(
+        `${this.configService.get('CLIENT_URL')}/auth/callback?` +
+          `access_token=${tokens.access_token}&refresh_token=${tokens.refresh_token}&user=${encodeURIComponent(JSON.stringify(user))}`,
+      );
+    } catch {
+      res.redirect(`${this.configService.get('CLIENT_URL')}/`);
+    }
   }
 
   @Public()
@@ -24,8 +71,9 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getProfile(@GetCurrentUser() user: any) {
-    return { user };
+  async getProfile(@GetCurrentUser() user: { userId: string }) {
+    console.log(user.userId);
+    return await this.authService.getCurrentUser(user.userId);
   }
 
   @UseGuards(JwtAuthGuard)

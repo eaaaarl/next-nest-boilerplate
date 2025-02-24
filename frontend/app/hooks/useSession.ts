@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 export function useSession() {
   const [session, setSession] = useState({
     isAuthenticated: Session.isAuthenticated(),
-    token: Session.getSession(),
+    token: Session.getUser(),
     user: Session.getUser(),
   });
 
@@ -12,7 +12,7 @@ export function useSession() {
     const handleStorageChange = () => {
       setSession({
         isAuthenticated: Session.isAuthenticated(),
-        token: Session.getSession(),
+        token: Session.getUser(),
         user: Session.getUser(),
       });
     };

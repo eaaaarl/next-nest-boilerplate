@@ -9,24 +9,39 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { CircleUser } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useUserQuery } from '@/app/hooks/useUserQuery';
 import { useAuthMutation } from '@/app/hooks/useAuthMutation';
+import Image from 'next/image';
+import { Loader } from 'lucide-react';
+
 export const User = () => {
   const { isLoadingProfile, user } = useUserQuery();
   const { logout } = useAuthMutation();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="secondary" size="icon" className="rounded-full">
-          <CircleUser className="h-5 w-5" />
-          <span className="sr-only">Toggle user menu</span>
+          {isLoadingProfile ? (
+            <Loader className="h-4 w-4 animate-spin" />
+          ) : (
+            <>
+              <Image
+                src={user?.avatar}
+                alt="User avatar"
+                width={32}
+                height={32}
+                className="h-full w-full rounded-full object-cover"
+              />
+              <span className="sr-only">Toggle user menu</span>
+            </>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>
-          {isLoadingProfile ? 'Loading...' : user?.user?.username || 'Guest'}
+          {isLoadingProfile ? 'Loading...' : user?.name || 'Guest'}
         </DropdownMenuLabel>
 
         <DropdownMenuSeparator />

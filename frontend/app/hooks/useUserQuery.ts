@@ -16,7 +16,7 @@ export const useUserQuery = () => {
 
 export const useUserListQuery = () => {
   const { data, isPending } = useQuery({
-    queryKey: ['users-profile'],
+    queryKey: ['users'],
     queryFn: async () => {
       const response = await api.get(`/user`);
       return response.data;

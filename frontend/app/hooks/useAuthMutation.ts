@@ -1,4 +1,5 @@
 import { authService } from '@/lib/auth';
+import api from '@/lib/axios';
 import { Session } from '@/lib/session';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -6,7 +7,7 @@ import { useState } from 'react';
 
 export const useAuthMutation = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(
-    Session.isAuthenticated
+    Session.isAuthenticated()
   );
 
   const queryClient = useQueryClient();

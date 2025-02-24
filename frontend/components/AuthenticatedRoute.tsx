@@ -1,26 +1,46 @@
-'use client';
-
-import React, { ReactNode, useEffect, useState } from 'react';
-import { useSession } from '@/app/hooks/useSession';
+import { ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from '@/app/hooks/useSession';
 
-function AuthenticatedRoute({ children }: { children: ReactNode }) {
-  const { isAuthenticated } = useSession();
+interface ProtectedRouteProps {
+  children: ReactNode;
+  requireAuth?: boolean;
+  allowedRoles?: string[];
+}
+
+export function ProtectedRoute({
+  children,
+  requireAuth = true,
+  allowedRoles = [],
+}: ProtectedRouteProps) {
+  const { isAuthenticated, user } = useSession();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    if (!isAuthenticated) {
-      router.push('/');
+    // Handle server-side rendering
+    if (typeof window === 'undefined') return;
+
+    if (requireAuth && !isAuthenticated) {
+      router.replace('/');
+      return;
     }
-  }, [isAuthenticated, router]);
-  if (!mounted) {
+
+    // Optional role-based access control
+    if (requireAuth && allowedRoles.length > 0 && user) {
+      const hasAllowedRole = allowedRoles.some((role) =>
+        user.roles?.includes(role)
+      );
+      if (!hasAllowedRole) {
+        router.replace('/');
+        return;
+      }
+    }
+  }, [isAuthenticated, user, requireAuth, allowedRoles, router]);
+
+  // Don't render anything while checking authentication
+  if (requireAuth && !isAuthenticated) {
     return null;
   }
-  if (!isAuthenticated) return null;
 
   return <>{children}</>;
 }
-
-export default AuthenticatedRoute;

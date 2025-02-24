@@ -11,6 +11,11 @@ export const authService = {
     return response.data;
   },
 
+  async loginGithub() {
+    const response = await api.get('/auth/github/login');
+    return response.data;
+  },
+
   async logout() {
     const response = await api.post('/auth/logout');
     return response.data;

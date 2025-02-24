@@ -2,9 +2,10 @@ import { encodeBase64, decodeBase64 } from '@oslojs/encoding';
 
 export class Session {
   static createSession(rt: string, at: string, user?: any) {
-    // console.log('Original Token', at);
-    // console.log('Original RefreshToken', rt);
-    // console.log('Original user', user);
+    console.log('Original Token', at);
+    console.log('Original RefreshToken', rt);
+    console.log('Original user', user);
+
     const encodedAccessToken = encodeBase64(new TextEncoder().encode(at));
     const encodedRefreshToken = encodeBase64(new TextEncoder().encode(rt));
     const encodedUser = encodeBase64(
@@ -16,6 +17,8 @@ export class Session {
       localStorage.setItem('accessToken', encodedAccessToken);
       localStorage.setItem('user', encodedUser);
     }
+
+    window.dispatchEvent(new Event('storage'));
   }
 
   static getSession(key: 'accessToken' | 'refreshToken'): string | null {
@@ -55,6 +58,8 @@ export class Session {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('user');
     }
+
+    window.dispatchEvent(new Event('storage'));
   }
 
   static isAuthenticated() {
