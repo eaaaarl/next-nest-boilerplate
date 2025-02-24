@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { redirect } from 'next/navigation';
+import { Session } from './session';
+import { encodeBase64 } from '@oslojs/encoding';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -10,12 +12,10 @@ const api = axios.create({
 
 api.interceptors.request.use(
   async (config) => {
-    const AT =
-      typeof window !== 'undefined'
-        ? localStorage.getItem('accessToken')
-        : null;
+    const accessToken = Session.getSession('accessToken');
+
     if (!config.headers.Authorization) {
-      config.headers.Authorization = `Bearer ${AT}`;
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
 
     return config;
@@ -31,19 +31,11 @@ api.interceptors.response.use(
       console.log('Token is expired, attempting to refresh...');
       prevRequest._retry = true;
       try {
-        const refreshToken =
-          typeof window !== 'undefined'
-            ? localStorage.getItem('refreshToken')
-            : null;
-        const userString =
-          typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-
-        let userId;
-        if (userString) {
-          const user = JSON.parse(userString);
-          userId = user.id;
-        }
-
+        const refreshToken = Session.getSession('refreshToken');
+        const user = Session.getUser();
+        const userId = user?.user?.id;
+        console.log('refreshToken', refreshToken);
+        console.log('user', userId);
         if (!refreshToken || !userId) {
           throw new Error('Missing refresh token or user id');
         }
@@ -53,10 +45,19 @@ api.interceptors.response.use(
           userId: userId,
         });
 
-        localStorage.setItem('accessToken', data.access_token);
-        localStorage.setItem('refreshToken', data.refresh_token);
+        // localStorage.setItem('accessToken', data.access_token);
+        // localStorage.setItem('refreshToken', data.refresh_token);
 
-        prevRequest.headers.Authorization = `Bearer ${data.access_token}`;
+        console.log('new accessToken', data?.access_token);
+        console.log('new refreshToken', data?.refresh_token);
+
+        await updateSession({
+          accessToken: data?.access_token,
+          refreshToken: data?.refresh_token,
+        });
+
+        prevRequest.headers.Authorization = `Bearer ${data?.access_token}`;
+        console.log('token is refresh');
         return api(prevRequest);
       } catch (refreshError) {
         if (typeof window !== 'undefined') {
@@ -72,3 +73,19 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+export const updateSession = async ({
+  accessToken,
+  refreshToken,
+}: {
+  accessToken: string;
+  refreshToken: string;
+}) => {
+  const at = encodeBase64(new TextEncoder().encode(accessToken));
+  const rt = encodeBase64(new TextEncoder().encode(refreshToken));
+
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('accessToken', at);
+    localStorage.setItem('refreshToken', rt);
+  }
+};

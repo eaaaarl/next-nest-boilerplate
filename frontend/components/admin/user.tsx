@@ -12,8 +12,10 @@ import {
 import { CircleUser } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useUserQuery } from '@/app/hooks/useUserQuery';
+import { useAuthMutation } from '@/app/hooks/useAuthMutation';
 export const User = () => {
   const { isLoadingProfile, user } = useUserQuery();
+  const { logout } = useAuthMutation();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -31,7 +33,9 @@ export const User = () => {
         <DropdownMenuItem>Settings</DropdownMenuItem>
         <DropdownMenuItem>Support</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Logout</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => logout(undefined)}>
+          Logout
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

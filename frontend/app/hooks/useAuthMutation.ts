@@ -27,9 +27,19 @@ export const useAuthMutation = () => {
     },
   });
 
+  const logoutMutation = useMutation({
+    mutationFn: authService.logout,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users-profile'] });
+      Session.destroySession();
+      router.push(`/`);
+    },
+  });
+
   return {
     isAuthenticated,
     login: loginMutation.mutate,
     isLoading: loginMutation.isPending,
+    logout: logoutMutation.mutate,
   };
 };

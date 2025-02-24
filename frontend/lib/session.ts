@@ -1,28 +1,54 @@
+import { encodeBase64, decodeBase64 } from '@oslojs/encoding';
+
 export class Session {
-  static createSession(rt: string, at: string, user: any) {
+  static createSession(rt: string, at: string, user?: any) {
+    // console.log('Original Token', at);
+    // console.log('Original RefreshToken', rt);
+    // console.log('Original user', user);
+    const encodedAccessToken = encodeBase64(new TextEncoder().encode(at));
+    const encodedRefreshToken = encodeBase64(new TextEncoder().encode(rt));
+    const encodedUser = encodeBase64(
+      new TextEncoder().encode(JSON.stringify(user))
+    );
+
     if (typeof window !== 'undefined') {
-      localStorage.setItem('refreshToken', rt);
-      localStorage.setItem('accessToken', at);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('refreshToken', encodedRefreshToken);
+      localStorage.setItem('accessToken', encodedAccessToken);
+      localStorage.setItem('user', encodedUser);
     }
   }
 
-  static getSession() {
+  static getSession(key: 'accessToken' | 'refreshToken'): string | null {
     if (typeof window === 'undefined') return null;
-    return {
-      rt: localStorage.getItem('refreshToken'),
-      at: localStorage.getItem('accessToken'),
-    };
+    const encoded = localStorage.getItem(key);
+    if (!encoded) return null;
+    try {
+      const decoded = decodeBase64(encoded);
+      return new TextDecoder().decode(decoded);
+    } catch {
+      return null;
+    }
   }
 
   static getUser() {
     if (typeof window === 'undefined') return null;
-    return {
-      user: JSON.parse(localStorage.getItem('user') || '{}'),
-      rt: localStorage.getItem('refreshToken'),
-      at: localStorage.getItem('accessToken'),
-    };
+
+    const encodedUser = localStorage.getItem('user');
+    if (!encodedUser) return null;
+
+    try {
+      const decoded = decodeBase64(encodedUser);
+      const userString = new TextDecoder().decode(decoded);
+      return {
+        user: JSON.parse(userString),
+        rt: this.getSession('refreshToken'),
+        at: this.getSession('accessToken'),
+      };
+    } catch {
+      return null;
+    }
   }
+
   static destroySession() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('refreshToken');
