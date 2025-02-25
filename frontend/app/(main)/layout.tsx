@@ -2,12 +2,14 @@
 
 import { Layout } from '@/components/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 
-export default function AdminRootLayout({ children }: { children: ReactNode }) {
+const layout = ({ children }: { children: ReactNode }) => {
   return (
     <ProtectedRoute>
       <Layout>{children}</Layout>
     </ProtectedRoute>
   );
-}
+};
+
+export default layout;

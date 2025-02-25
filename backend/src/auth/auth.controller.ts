@@ -39,7 +39,7 @@ export class AuthController {
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,
-      scope: 'user:email',
+      scope: 'user:email',    
     });
 
     const githubAuthUrl = `https://github.com/login/oauth/authorize?${params}`;
