@@ -1,9 +1,9 @@
 import { authService } from '@/lib/auth';
-import api from '@/lib/axios';
 import { Session } from '@/lib/session';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export const useAuthMutation = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -15,16 +15,19 @@ export const useAuthMutation = () => {
 
   const loginMutation = useMutation({
     mutationFn: authService.login,
-    onSuccess: (data) => {
-      const accessToken = data.tokens.access_token;
-      const refreshToken = data.tokens.refresh_token;
-      const user = data.user;
-      Session.createSession(refreshToken, accessToken, user);
-      setIsAuthenticated(true);
-      router.push(`/dashboard`);
+    onSuccess: async (data) => {
+      if (data) {
+        const accessToken = await data.tokens.access_token;
+        const refreshToken = await data.tokens.refresh_token;
+        const user = await data.user;
+        Session.createSession(refreshToken, accessToken, user);
+        setIsAuthenticated(true);
+        router.push(`/dashboard`);
+      }
     },
-    onError: (error) => {
-      console.error(error);
+    onError: (e) => {
+      console.error(e);
+      toast.error(e.message);
     },
   });
 

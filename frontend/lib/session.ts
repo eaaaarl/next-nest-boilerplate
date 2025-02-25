@@ -2,23 +2,33 @@ import { encodeBase64, decodeBase64 } from '@oslojs/encoding';
 
 export class Session {
   static createSession(rt: string, at: string, user?: any) {
-    console.log('Original Token', at);
-    console.log('Original RefreshToken', rt);
-    console.log('Original user', user);
+    try {
+      const encodedAccessToken = encodeBase64(new TextEncoder().encode(at));
+      const encodedRefreshToken = encodeBase64(new TextEncoder().encode(rt));
+      const encodedUser = encodeBase64(
+        new TextEncoder().encode(JSON.stringify(user))
+      );
 
-    const encodedAccessToken = encodeBase64(new TextEncoder().encode(at));
-    const encodedRefreshToken = encodeBase64(new TextEncoder().encode(rt));
-    const encodedUser = encodeBase64(
-      new TextEncoder().encode(JSON.stringify(user))
-    );
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('refreshToken', encodedRefreshToken);
+        localStorage.setItem('accessToken', encodedAccessToken);
+        localStorage.setItem('user', encodedUser);
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('refreshToken', encodedRefreshToken);
-      localStorage.setItem('accessToken', encodedAccessToken);
-      localStorage.setItem('user', encodedUser);
+        // Force an update by manually triggering the storage event
+        window.dispatchEvent(
+          new StorageEvent('storage', {
+            key: 'accessToken',
+            newValue: encodedAccessToken,
+          })
+        );
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Failed to create session:', error);
+      return false;
     }
-
-    window.dispatchEvent(new Event('storage'));
   }
 
   static getSession(key: 'accessToken' | 'refreshToken'): string | null {

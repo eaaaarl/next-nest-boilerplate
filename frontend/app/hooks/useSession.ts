@@ -2,23 +2,26 @@ import { Session } from '@/lib/session';
 import { useEffect, useState } from 'react';
 
 export function useSession() {
-  const [session, setSession] = useState({
+  const [session, setSession] = useState(() => ({
     isAuthenticated: Session.isAuthenticated(),
-    token: Session.getUser(),
     user: Session.getUser(),
-  });
+  }));
 
   useEffect(() => {
-    const handleStorageChange = () => {
+    const updateSession = () => {
+      console.log('🔄 Updating session from storage change');
       setSession({
         isAuthenticated: Session.isAuthenticated(),
-        token: Session.getUser(),
         user: Session.getUser(),
       });
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    // Listen for storage updates
+    window.addEventListener('storage', updateSession);
+
+    updateSession();
+
+    return () => window.removeEventListener('storage', updateSession);
   }, []);
 
   return session;

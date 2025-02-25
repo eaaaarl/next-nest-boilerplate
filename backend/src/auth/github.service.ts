@@ -27,13 +27,10 @@ export class GitHubService {
     private authService: AuthService,
   ) {}
 
-  async getGithubToken(code: string): Promise<GitHubTokenResponse> {
+  private async getGithubToken(code: string): Promise<GitHubTokenResponse> {
     const params = new URLSearchParams({
-      client_id:
-        this.configService.get('GITHUB_CLIENT_ID') ?? 'Ov23li8TDub4qtuIGDaD',
-      client_secret:
-        this.configService.get('GITHUB_CLIENT_SECRET') ??
-        '9e83d4f84c169315d89ff4dffb59f17d5930b982',
+      client_id: this.configService.get('GITHUB_CLIENT_ID') ?? '',
+      client_secret: this.configService.get('GITHUB_CLIENT_SECRET') ?? '',
       code,
     });
 
@@ -54,18 +51,19 @@ export class GitHubService {
     return response.json();
   }
 
-  async getGithubUser(access_token: string): Promise<GitHubUser> {
+  private async getGithubUser(access_token: string): Promise<GitHubUser> {
     const response = await fetch('https://api.github.com/user', {
       headers: {
         Authorization: `Bearer ${access_token}`,
+        'X-GitHub-Api-Version': '2022-11-28',
       },
     });
 
     if (!response.ok) {
       throw new UnauthorizedException('Failed to get GitHub user');
     }
-
-    return response.json();
+    const data = await response.json();
+    return data;
   }
 
   async handleGithubCallback(code: string) {

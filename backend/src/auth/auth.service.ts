@@ -41,13 +41,14 @@ export class AuthService {
   }
 
   async signinLocal(dto: AuthDto): Promise<any> {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirst({
       where: {
         username: dto.username,
       },
     });
 
-    if (!user || !user.password) return null;
+    if (!user || !user.password)
+      return new ForbiddenException('User not found');
 
     const passwordMatches = await argon.verify(user.password, dto.password);
     if (!passwordMatches) {

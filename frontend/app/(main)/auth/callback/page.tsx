@@ -3,7 +3,6 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Session } from '@/lib/session';
-import { useSession } from '@/app/hooks/useSession';
 
 export default function AuthCallbackPage() {
   const searchParams = useSearchParams();
@@ -17,9 +16,18 @@ export default function AuthCallbackPage() {
       if (accessToken && refreshToken && userParam) {
         try {
           const user = JSON.parse(decodeURIComponent(userParam));
-          Session.createSession(refreshToken, accessToken, user);
-
-          router.push('/dashboard');
+          const sessionCreated = Session.createSession(
+            refreshToken,
+            accessToken,
+            user
+          );
+          if (sessionCreated) {
+            setTimeout(() => {
+              router.push('/dashboard');
+            }, 300);
+          } else {
+            router.push('/');
+          }
         } catch (error) {
           console.error('Error parsing user:', error);
           router.push('/');

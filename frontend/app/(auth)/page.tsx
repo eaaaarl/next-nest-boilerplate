@@ -22,8 +22,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useAuthMutation } from '../hooks/useAuthMutation';
 import { Github, Loader } from 'lucide-react';
+import { useAuth } from '../(main)/SessionProvider';
 
 export default function LoginForm() {
   const form = useForm({
@@ -34,7 +34,7 @@ export default function LoginForm() {
     },
   });
 
-  const { isLoading, login } = useAuthMutation();
+  const { isLoading, login } = useAuth();
 
   const handleLogin = (payload: loginPayload) => {
     login(payload);
@@ -90,7 +90,9 @@ export default function LoginForm() {
                   )}
                 </Button>
 
-                <Link href={`http://localhost:8080/api/auth/github/login`}>
+                <Link
+                  href={`${process.env.NEXT_PUBLIC_API_URL}/auth/github/login`}
+                >
                   <Button type="button" variant="outline" className="w-full">
                     <Github /> Login with Github
                   </Button>

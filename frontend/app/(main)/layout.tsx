@@ -1,12 +1,12 @@
 'use client';
 
-import { ProtectedRoute } from '@/components/AuthenticatedRoute';
 import { Layout } from '@/components/Layout';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import { ReactNode } from 'react';
 
 export default function AdminRootLayout({ children }: { children: ReactNode }) {
   return (
-    <ProtectedRoute requireAuth>
+    <ProtectedRoute>
       <Layout>{children}</Layout>
     </ProtectedRoute>
   );

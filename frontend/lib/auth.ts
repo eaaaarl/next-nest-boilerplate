@@ -8,11 +8,12 @@ export const authService = {
 
   async login(payload: { username: string; password: string }) {
     const response = await api.post('/auth/signin', payload);
-    return response.data;
-  },
-
-  async loginGithub() {
-    const response = await api.get('/auth/github/login');
+    const data = await response.data;
+    if (data?.response?.statusCode === 403) {
+      throw new Error(
+        data?.response?.message || 'Failed to login, Please try again'
+      );
+    }
     return response.data;
   },
 

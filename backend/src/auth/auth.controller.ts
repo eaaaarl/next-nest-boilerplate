@@ -66,13 +66,12 @@ export class AuthController {
   @Public()
   @Post('signin')
   async signinLocal(@Body() payload: AuthDto) {
-    return this.authService.signinLocal(payload);
+    return await this.authService.signinLocal(payload);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getProfile(@GetCurrentUser() user: { userId: string }) {
-    console.log(user.userId);
     return await this.authService.getCurrentUser(user.userId);
   }
 
