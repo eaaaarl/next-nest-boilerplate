@@ -12,10 +12,13 @@ const api = axios.create({
 
 api.interceptors.request.use(
   async (config) => {
-    const accessToken = Session.getSession('accessToken');
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('accessToken')
+        : null;
 
     if (!config.headers.Authorization) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
@@ -23,7 +26,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-api.interceptors.response.use(
+/* api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const prevRequest = error?.config;
@@ -70,11 +73,11 @@ api.interceptors.response.use(
     }
     return Promise.reject(error);
   }
-);
+); */
 
 export default api;
 
-export const updateSession = async ({
+/* export const updateSession = async ({
   accessToken,
   refreshToken,
 }: {
@@ -88,4 +91,4 @@ export const updateSession = async ({
     localStorage.setItem('accessToken', at);
     localStorage.setItem('refreshToken', rt);
   }
-};
+}; */

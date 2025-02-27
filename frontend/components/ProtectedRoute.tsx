@@ -1,8 +1,9 @@
 'use client';
-import { useAuth } from '@/app/(main)/SessionProvider';
+
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState, ReactNode } from 'react';
 import dynamic from 'next/dynamic';
+import { useAuth } from '@/lib/context/state/authContext';
 
 interface ProtectedRouteProps {
   children: ReactNode;

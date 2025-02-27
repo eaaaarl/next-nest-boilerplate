@@ -1,11 +1,11 @@
 'use client';
 
-import { useSession } from '@/app/hooks/useSession';
 import { Card, CardContent } from '@/components/ui/card';
+import { useAuth } from '@/lib/context/state/authContext';
 import React from 'react';
 
 const Page = () => {
-  const { user, isAuthenticated } = useSession();
+  const { user, isAuthenticated } = useAuth();
   return (
     <div className="space-y-6 p-4">
       <Card className="bg-gray-50">

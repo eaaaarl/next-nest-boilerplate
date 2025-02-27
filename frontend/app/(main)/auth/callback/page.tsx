@@ -1,11 +1,12 @@
 'use client';
+import { useGitHubAuth } from '@/features/auth/hooks/useGithubAuth';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Session } from '@/lib/session';
 
 export default function AuthCallbackPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { updateAuthState } = useGitHubAuth();
 
   useEffect(() => {
     const processAuth = () => {
@@ -20,13 +21,13 @@ export default function AuthCallbackPage() {
 
       try {
         const user = JSON.parse(decodeURIComponent(userParam));
-        const sessionCreated = Session.createSession(
-          refreshToken,
-          accessToken,
-          user
-        );
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('user', JSON.stringify(user));
 
-        router.push(sessionCreated ? '/dashboard' : '/');
+        updateAuthState(user, true);
+
+        router.push(`/dashboard`);
       } catch (error) {
         console.error('Error parsing user:', error);
         router.push('/');

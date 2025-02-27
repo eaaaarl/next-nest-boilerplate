@@ -11,9 +11,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { loginPayload, loginSchema } from '../schema/login.schema';
 import {
   Form,
   FormControl,
@@ -23,22 +20,10 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Github, Loader } from 'lucide-react';
-import { useAuth } from '../(main)/SessionProvider';
+import useSignInForm from '@/features/auth/hooks/useSignInForm';
 
 export default function LoginForm() {
-  const form = useForm({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: '',
-      password: '',
-    },
-  });
-
-  const { isLoading, login } = useAuth();
-
-  const handleLogin = (payload: loginPayload) => {
-    login(payload);
-  };
+  const { form, handleLogin, isSignIn } = useSignInForm();
   return (
     <div className="flex h-screen items-center justify-center">
       <Card className="mx-auto max-w-sm">
@@ -82,8 +67,8 @@ export default function LoginForm() {
                     )}
                   />
                 </div>
-                <Button disabled={isLoading} type="submit" className="w-full">
-                  {isLoading ? (
+                <Button disabled={isSignIn} type="submit" className="w-full">
+                  {isSignIn ? (
                     <Loader className="h-4 w-4 animate-spin" />
                   ) : (
                     'Login'

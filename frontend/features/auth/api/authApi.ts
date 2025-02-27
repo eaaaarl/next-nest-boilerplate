@@ -1,13 +1,9 @@
-import api from './axios';
+import api from '@/lib/axios';
+import { SignInPayload } from './interface';
 
-export const authService = {
-  async profile() {
-    const response = await api.get(`/auth/me`);
-    return response.data;
-  },
-
-  async login(payload: { username: string; password: string }) {
-    const response = await api.post('/auth/signin', payload);
+export const authApi = {
+  async signIn(action: SignInPayload) {
+    const response = await api.post('/auth/signin', action);
     const data = await response.data;
     if (data?.response?.statusCode === 403) {
       throw new Error(
