@@ -8,10 +8,11 @@ import {
 } from 'react';
 import { User } from '../types/user.type';
 import { useRouter } from 'next/navigation';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '@/features/auth/api/authApi';
 import { toast } from 'sonner';
 import { SignInPayload } from '@/features/auth/api/interface';
+import { authQuery } from '@/features/auth/query/authQuery';
 
 interface AuthContext {
   user: User | null;
@@ -19,7 +20,7 @@ interface AuthContext {
   SignIn: (action: SignInPayload) => void;
   isSignIn: boolean;
   Logout?: () => void;
-  updateAuthState: (user: User, authenticated: boolean) => void;
+  updateAuthState: (authenticated: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContext>({
@@ -36,19 +37,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { UserProfile } = authQuery();
 
   useEffect(() => {
-    const storedUser =
-      typeof window !== 'undefined' ? localStorage.getItem('user') : null;
     const accessToken =
       typeof window !== 'undefined'
         ? localStorage.getItem('accessToken')
         : null;
 
-    if (storedUser && accessToken) {
+    if (accessToken) {
       try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
         setIsAuthenticated(true);
       } catch (error) {
         localStorage.removeItem('user');
@@ -58,8 +56,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const updateAuthState = (user: User, authenticated: boolean) => {
-    setUser(user);
+  useEffect(() => {
+    if (UserProfile) {
+      setUser(UserProfile);
+      localStorage.setItem('user', JSON.stringify(UserProfile));
+    }
+  }, [UserProfile]);
+
+  const updateAuthState = (authenticated: boolean) => {
     setIsAuthenticated(authenticated);
   };
 
@@ -76,26 +80,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     onSuccess: async (data) => {
       if (data) {
         setIsAuthenticated(true);
-        setUser(data.user);
         router.push(`/dashboard`);
         queryClient.invalidateQueries({ queryKey: ['users-profile'] });
 
         localStorage.setItem('accessToken', data.tokens.access_token);
         localStorage.setItem('refreshToken', data.tokens.refresh_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
       }
     },
     onError: (e) => {
       toast.error(e.message || 'Failed to login, please try again');
     },
   });
-
   const logoutMutation = useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users-profile'] });
       removeAuth();
       router.push(`/`);
+    },
+    onError: (e) => {
+      toast.error(e.message || 'Failed to logout');
+      removeAuth();
     },
   });
 

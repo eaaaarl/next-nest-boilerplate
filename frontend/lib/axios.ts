@@ -1,7 +1,6 @@
+import useUserProfile from '@/features/auth/hooks/useUserProfile';
 import axios from 'axios';
 import { redirect } from 'next/navigation';
-import { Session } from './session';
-import { encodeBase64 } from '@oslojs/encoding';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -26,7 +25,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-/* api.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const prevRequest = error?.config;
@@ -34,25 +33,22 @@ api.interceptors.request.use(
       console.log('Token is expired, attempting to refresh...');
       prevRequest._retry = true;
       try {
-        const refreshToken = Session.getSession('refreshToken');
-        const user = Session.getUser();
-        const userId = user?.user?.id;
-        console.log('refreshToken', refreshToken);
-        console.log('user', userId);
-        if (!refreshToken || !userId) {
+        const refreshToken =
+          typeof window !== 'undefined'
+            ? localStorage.getItem('refreshToken')
+            : null;
+        const userStorage =
+          typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+        const User = JSON.parse(userStorage ?? '');
+
+        if (!refreshToken) {
           throw new Error('Missing refresh token or user id');
         }
 
         const { data } = await api.post(`/auth/refresh`, {
           rt: refreshToken,
-          userId: userId,
+          userId: User?.id,
         });
-
-        // localStorage.setItem('accessToken', data.access_token);
-        // localStorage.setItem('refreshToken', data.refresh_token);
-
-        console.log('new accessToken', data?.access_token);
-        console.log('new refreshToken', data?.refresh_token);
 
         await updateSession({
           accessToken: data?.access_token,
@@ -60,7 +56,7 @@ api.interceptors.request.use(
         });
 
         prevRequest.headers.Authorization = `Bearer ${data?.access_token}`;
-        console.log('token is refresh');
+        console.log('<------ Token is refresh ------>');
         return api(prevRequest);
       } catch (refreshError) {
         if (typeof window !== 'undefined') {
@@ -73,22 +69,19 @@ api.interceptors.request.use(
     }
     return Promise.reject(error);
   }
-); */
+);
 
 export default api;
 
-/* export const updateSession = async ({
+export const updateSession = async ({
   accessToken,
   refreshToken,
 }: {
   accessToken: string;
   refreshToken: string;
 }) => {
-  const at = encodeBase64(new TextEncoder().encode(accessToken));
-  const rt = encodeBase64(new TextEncoder().encode(refreshToken));
-
   if (typeof window !== 'undefined') {
-    localStorage.setItem('accessToken', at);
-    localStorage.setItem('refreshToken', rt);
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
   }
-}; */
+};

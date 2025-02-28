@@ -15,8 +15,11 @@ const ProtectedRouteBase = ({ children }: ProtectedRouteProps) => {
   const pathname = usePathname();
   const [isChecking, setIsChecking] = useState(true);
 
+  // NON AUTH PAGES
+  const publicPaths = ['/auth/callback', '/'];
+
   useEffect(() => {
-    if (pathname === '/auth/callback') {
+    if (publicPaths.includes(pathname)) {
       setIsChecking(false);
       return;
     }
@@ -28,15 +31,19 @@ const ProtectedRouteBase = ({ children }: ProtectedRouteProps) => {
     setIsChecking(false);
   }, [isAuthenticated, router, pathname]);
 
-  if (pathname === '/auth/callback') {
+  if (publicPaths.includes(pathname)) {
     return <>{children}</>;
   }
 
-  if (isChecking || !isAuthenticated) {
+  if (isChecking) {
     return null;
   }
 
-  return <>{children}</>;
+  if (isAuthenticated) {
+    return <>{children}</>;
+  }
+
+  return null;
 };
 
 const ProtectedRoute = dynamic(() => Promise.resolve(ProtectedRouteBase), {
