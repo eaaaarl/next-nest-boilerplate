@@ -23,7 +23,7 @@ import {
 
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { User } from './user';
+import { UserButton } from '@/features/auth/components/UserButton';
 
 export const Header = () => {
   return (
@@ -113,7 +113,7 @@ export const Header = () => {
           </div>
         </form>
       </div>
-      <User />
+      <UserButton />
     </header>
   );
 };

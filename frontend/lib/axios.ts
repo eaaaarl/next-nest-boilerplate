@@ -1,4 +1,3 @@
-import useUserProfile from '@/features/auth/hooks/useUserProfile';
 import axios from 'axios';
 import { redirect } from 'next/navigation';
 
@@ -40,7 +39,6 @@ api.interceptors.response.use(
         const userStorage =
           typeof window !== 'undefined' ? localStorage.getItem('user') : null;
         const User = JSON.parse(userStorage ?? '');
-
         if (!refreshToken) {
           throw new Error('Missing refresh token or user id');
         }

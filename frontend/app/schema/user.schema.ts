@@ -10,3 +10,11 @@ export const userSchema = z.object({
 });
 
 export type userValues = z.infer<typeof userSchema>;
+
+export const userProfileSchema = z.object({
+  name: z.string(),
+  email: z.string(),
+  username: z.string(),
+});
+
+export type userProfileValues = z.infer<typeof userProfileSchema>;

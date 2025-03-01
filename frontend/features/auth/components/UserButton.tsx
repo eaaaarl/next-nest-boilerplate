@@ -9,13 +9,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '../ui/button';
+import { Button } from '../../../components/ui/button';
 import Image from 'next/image';
-import { Loader, UserCircle } from 'lucide-react';
+import { UserCircle } from 'lucide-react';
 import useUserProfile from '@/features/auth/hooks/useUserProfile';
 import { useLogout } from '@/features/auth/hooks/useLogout';
+import Link from 'next/link';
 
-export const User = () => {
+export const UserButton = () => {
   const { user } = useUserProfile();
   const { Logout } = useLogout();
   return (
@@ -42,7 +43,9 @@ export const User = () => {
         <DropdownMenuLabel>{user?.name ?? user?.username}</DropdownMenuLabel>
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Settings</DropdownMenuItem>
+        <Link href={`/profile/setting`}>
+          <DropdownMenuItem>Settings</DropdownMenuItem>
+        </Link>
         <DropdownMenuItem>Support</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={Logout}>Logout</DropdownMenuItem>

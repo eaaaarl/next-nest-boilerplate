@@ -91,6 +91,7 @@ export class AuthService {
         email: true,
         name: true,
         username: true,
+        providerId: true,
       },
     });
   }

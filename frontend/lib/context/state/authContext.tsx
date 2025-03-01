@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users-profile'] });
       removeAuth();
-      router.push(`/`);
+      window.location.href = `/`;
     },
     onError: (e) => {
       toast.error(e.message || 'Failed to logout');

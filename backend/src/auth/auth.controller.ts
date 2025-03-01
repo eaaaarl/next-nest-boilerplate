@@ -39,7 +39,7 @@ export class AuthController {
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,
-      scope: 'user:email',    
+      scope: 'user:email',
     });
 
     const githubAuthUrl = `https://github.com/login/oauth/authorize?${params}`;
@@ -51,12 +51,10 @@ export class AuthController {
   @Get('github/callback')
   async githubCallback(@Query('code') code: string, @Res() res: Response) {
     try {
-      const { tokens, user } =
-        await this.githubService.handleGithubCallback(code);
-
+      const { tokens } = await this.githubService.handleGithubCallback(code);
       res.redirect(
         `${this.configService.get('CLIENT_URL')}/auth/callback?` +
-          `access_token=${tokens.access_token}&refresh_token=${tokens.refresh_token}&user=${encodeURIComponent(JSON.stringify(user))}`,
+          `access_token=${tokens.access_token}&refresh_token=${tokens.refresh_token}`,
       );
     } catch {
       res.redirect(`${this.configService.get('CLIENT_URL')}/`);
