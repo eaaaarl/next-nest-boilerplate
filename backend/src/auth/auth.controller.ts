@@ -2,13 +2,15 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
+  Put,
   Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto/AuthDto.dto';
+import { AuthDto, UserProfileDto } from './dto/AuthDto.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GetCurrentUserId } from './common/decorators/get-current-user-id.decorator';
 import { GetCurrentUser } from './common/decorators/get-current-user.decorator';
@@ -71,6 +73,12 @@ export class AuthController {
   @Get('me')
   async getProfile(@GetCurrentUser() user: { userId: string }) {
     return await this.authService.getCurrentUser(user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('update/:id/profile')
+  async updateProfile(@Param('id') id: string, @Body() dto: UserProfileDto) {
+    return this.authService.updateUserProfile(dto, id);
   }
 
   @UseGuards(JwtAuthGuard)

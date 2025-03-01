@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import useUserProfile from './useUserProfile';
 import { useEffect } from 'react';
+import { useUpdateProfileMutation } from '../query/authMutation';
+import { toast } from 'sonner';
 
 export const useUserProfileSetting = () => {
   const { user } = useUserProfile();
@@ -26,13 +28,25 @@ export const useUserProfileSetting = () => {
       });
     }
   }, [user, form]);
+  const { IsUpdatingProfileUser, updateProfileUser } =
+    useUpdateProfileMutation();
 
   const handleUpdate = (action: userProfileValues) => {
-    console.log(action);
+    if (user) {
+      updateProfileUser(
+        { id: user.id, payload: action },
+        {
+          onSuccess: () => {
+            toast.success('Profile updated.');
+          },
+        }
+      );
+    }
   };
 
   return {
     form,
     handleUpdate,
+    IsUpdatingProfileUser,
   };
 };

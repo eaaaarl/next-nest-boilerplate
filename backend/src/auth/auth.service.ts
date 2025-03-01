@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtPayload } from './types/jwt-payload.type';
 import * as argon from 'argon2';
-import { AuthDto } from './dto/AuthDto.dto';
+import { AuthDto, UserProfileDto } from './dto/AuthDto.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { Token } from './types/token.type';
 
@@ -92,6 +92,19 @@ export class AuthService {
         name: true,
         username: true,
         providerId: true,
+      },
+    });
+  }
+
+  async updateUserProfile(dto: UserProfileDto, id: string) {
+    return await this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        name: dto.name,
+        username: dto.username,
+        email: dto.email,
       },
     });
   }

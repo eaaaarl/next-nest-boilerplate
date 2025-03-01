@@ -6,7 +6,7 @@ import { useUserProfileSetting } from '@/features/auth/hooks/useUserProfileSetti
 import React from 'react';
 
 const Setting = () => {
-  const { form, handleUpdate } = useUserProfileSetting();
+  const { form, handleUpdate, IsUpdatingProfileUser } = useUserProfileSetting();
   const { user } = useUserProfile();
   return (
     <div>
@@ -14,6 +14,7 @@ const Setting = () => {
         githubUser={!!user?.providerId}
         form={form}
         handleUpdate={handleUpdate}
+        IsUpdatingProfile={IsUpdatingProfileUser}
       />
     </div>
   );

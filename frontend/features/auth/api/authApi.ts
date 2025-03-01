@@ -1,9 +1,19 @@
 import api from '@/lib/axios';
 import { SignInPayload } from './interface';
+import { userProfileValues } from '@/app/schema/user.schema';
 
 export const authApi = {
   async profile() {
     const response = await api.get(`auth/me`);
+    return response.data;
+  },
+
+  async updateProfile(payload: userProfileValues, id: string) {
+    const response = await api.put(`auth/update/${id}/profile`, {
+      name: payload.name,
+      username: payload.username,
+      email: payload.email,
+    });
     return response.data;
   },
 

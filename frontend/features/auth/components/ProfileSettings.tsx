@@ -22,18 +22,20 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Github } from 'lucide-react';
+import { Github, Loader } from 'lucide-react';
 
 interface ProfileSettingProps {
   form: UseFormReturn<userProfileValues>;
   handleUpdate: (action: userProfileValues) => void;
   githubUser?: boolean;
+  IsUpdatingProfile?: boolean;
 }
 
 const ProfileSettings = ({
   form,
   handleUpdate,
   githubUser,
+  IsUpdatingProfile,
 }: ProfileSettingProps) => {
   const isReadOnly = githubUser;
   const [showDialog, setShowDialog] = useState(false);
@@ -108,7 +110,13 @@ const ProfileSettings = ({
                 )}
               />
 
-              <Button disabled={isReadOnly}>Save</Button>
+              <Button disabled={isReadOnly || IsUpdatingProfile}>
+                {IsUpdatingProfile ? (
+                  <Loader className="h-4 w-4 animate-spin" />
+                ) : (
+                  'Save'
+                )}
+              </Button>
             </form>
           </Form>
         </CardContent>
