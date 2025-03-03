@@ -40,7 +40,16 @@ export const UserButton = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>{user?.name ?? user?.username}</DropdownMenuLabel>
+        <DropdownMenuLabel className="text-sm font-semibold">
+          {user?.name ? (
+            <>
+              {user.name} <br />
+              <span className="text-gray-500">@{user.username}</span>
+            </>
+          ) : (
+            `@${user?.username ?? 'Unknown'}`
+          )}
+        </DropdownMenuLabel>
 
         <DropdownMenuSeparator />
         <Link href={`/profile/setting`}>

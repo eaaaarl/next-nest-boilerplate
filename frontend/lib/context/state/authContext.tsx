@@ -13,12 +13,18 @@ import { authApi } from '@/features/auth/api/authApi';
 import { toast } from 'sonner';
 import { SignInPayload } from '@/features/auth/api/interface';
 import { authQuery } from '@/features/auth/query/authQuery';
+import { signUpValues } from '@/app/schema/singup.schema';
 
 interface AuthContext {
   user: User | null;
   isAuthenticated: boolean;
+
   SignIn: (action: SignInPayload) => void;
   isSignIn: boolean;
+
+  SignUp: (action: signUpValues) => void;
+  isSingUp: boolean;
+
   Logout?: () => void;
   updateAuthState: (authenticated: boolean) => void;
 }
@@ -26,8 +32,13 @@ interface AuthContext {
 const AuthContext = createContext<AuthContext>({
   user: null,
   isAuthenticated: false,
+
   SignIn: (action: SignInPayload) => {},
   isSignIn: true,
+
+  SignUp: (action: signUpValues) => {},
+  isSingUp: true,
+
   Logout: () => {},
   updateAuthState: () => {},
 });
@@ -75,22 +86,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('refreshToken');
   };
 
+  const signUpMutation = useMutation({
+    mutationFn: authApi.signUp,
+    onSuccess: (data) => {
+      setIsAuthenticated(true);
+      router.push(`/dashboard`);
+      queryClient.invalidateQueries({ queryKey: ['users-profile'] });
+
+      localStorage.setItem('accessToken', data.access_token);
+      localStorage.setItem('refreshToken', data.refresh_token);
+    },
+    onError: (e) => {
+      toast.error(e.message || 'Failed to signup, please try again');
+    },
+  });
+
   const loginMutation = useMutation({
     mutationFn: authApi.signIn,
     onSuccess: async (data) => {
-      if (data) {
-        setIsAuthenticated(true);
-        router.push(`/dashboard`);
-        queryClient.invalidateQueries({ queryKey: ['users-profile'] });
+      setIsAuthenticated(true);
+      router.push(`/dashboard`);
+      queryClient.invalidateQueries({ queryKey: ['users-profile'] });
 
-        localStorage.setItem('accessToken', data.tokens.access_token);
-        localStorage.setItem('refreshToken', data.tokens.refresh_token);
-      }
+      localStorage.setItem('accessToken', data.tokens.access_token);
+      localStorage.setItem('refreshToken', data.tokens.refresh_token);
     },
     onError: (e) => {
       toast.error(e.message || 'Failed to login, please try again');
     },
   });
+
   const logoutMutation = useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {
@@ -109,6 +134,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     user,
     SignIn: loginMutation.mutate,
     isSignIn: loginMutation.isPending,
+    SignUp: signUpMutation.mutate,
+    isSingUp: signUpMutation.isPending,
     Logout: logoutMutation.mutate,
     updateAuthState,
   };

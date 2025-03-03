@@ -9,14 +9,12 @@ const Setting = () => {
   const { form, handleUpdate, IsUpdatingProfileUser } = useUserProfileSetting();
   const { user } = useUserProfile();
   return (
-    <div>
-      <ProfileSettings
-        githubUser={!!user?.providerId}
-        form={form}
-        handleUpdate={handleUpdate}
-        IsUpdatingProfile={IsUpdatingProfileUser}
-      />
-    </div>
+    <ProfileSettings
+      githubUser={!!user?.providerId}
+      form={form}
+      handleUpdate={handleUpdate}
+      IsUpdatingProfile={IsUpdatingProfileUser}
+    />
   );
 };
 

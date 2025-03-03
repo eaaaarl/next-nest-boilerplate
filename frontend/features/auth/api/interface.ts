@@ -17,3 +17,8 @@ export interface SignInResponse {
     refresh_token: string;
   };
 }
+
+export interface SingUpResponse {
+  access_token: string;
+  refresh_token: string;
+}

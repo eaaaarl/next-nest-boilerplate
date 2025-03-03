@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto, UserProfileDto } from './dto/AuthDto.dto';
+import { AuthDto, SignUpAuthDto, UserProfileDto } from './dto/AuthDto.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GetCurrentUserId } from './common/decorators/get-current-user-id.decorator';
 import { GetCurrentUser } from './common/decorators/get-current-user.decorator';
@@ -29,8 +29,8 @@ export class AuthController {
 
   @Public()
   @Post('signup')
-  async signupLocal(@Body() payload: AuthDto) {
-    return this.authService.signupLocal(payload);
+  async signupLocal(@Body() payload: SignUpAuthDto) {
+    return await this.authService.signupLocal(payload);
   }
 
   @Get('github/login')

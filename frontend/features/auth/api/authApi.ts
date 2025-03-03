@@ -1,6 +1,7 @@
 import api from '@/lib/axios';
-import { SignInPayload } from './interface';
+import { SignInPayload, SignInResponse, SingUpResponse } from './interface';
 import { userProfileValues } from '@/app/schema/user.schema';
+import { signUpValues } from '@/app/schema/singup.schema';
 
 export const authApi = {
   async profile() {
@@ -17,17 +18,23 @@ export const authApi = {
     return response.data;
   },
 
-  async signIn(action: SignInPayload) {
-    const response = await api.post('/auth/signin', action);
-    const data = await response.data;
-    if (data?.response?.statusCode === 403) {
-      throw new Error(
-        data?.response?.message || 'Failed to login, Please try again'
-      );
-    }
+  async signUp(payload: signUpValues): Promise<SingUpResponse> {
+    const response = await api.post(`auth/signup`, payload);
     return response.data;
   },
 
+  async signIn(action: SignInPayload) {
+    try {
+      const response = await api.post('/auth/signin', action);
+      const data = response.data;
+      console.log(data?.response?.message);
+      return data;
+    } catch (error) {
+      const errorMessage =
+        error?.response?.data?.message || 'Failed to login. Please try again';
+      throw new Error(errorMessage);
+    }
+  },
   async logout() {
     const response = await api.post('/auth/logout');
     return response.data;
